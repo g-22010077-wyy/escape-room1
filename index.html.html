@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>四年级华文：词语密室逃脱</title>
+<style>
+:root{--navy:#14213d;--blue:#2878c8;--gold:#f5bd45;--paper:#fffaf0;--green:#21865b;--red:#c44747}
+*{box-sizing:border-box}body{margin:0;font-family:"Microsoft YaHei",system-ui,sans-serif;background:linear-gradient(135deg,#101b36,#233f69);color:#17243b;min-height:100vh;padding:20px}
+.wrap{max-width:950px;margin:auto}.hero{color:white;text-align:center;padding:22px 12px}.hero h1{margin:0;font-size:clamp(28px,5vw,44px)}.hero p{color:#dbe8ff;margin:10px 0}
+.panel{background:var(--paper);border:4px solid var(--gold);border-radius:22px;padding:clamp(18px,4vw,32px);box-shadow:0 15px 45px #0005}
+.top{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;align-items:center}.pill{background:#e7efff;color:#17477c;border-radius:999px;padding:8px 13px;font-weight:bold}.progress{height:10px;background:#e3dfd5;border-radius:20px;overflow:hidden;margin:18px 0}.bar{height:100%;width:0;background:linear-gradient(90deg,#2878c8,#5dc6a2);transition:width .25s}
+h2{font-size:clamp(22px,3vw,30px);margin:14px 0}.word{font-size:clamp(32px,6vw,48px);font-weight:900;color:#164f86;text-align:center;margin:18px 0 8px}.question{text-align:center;font-size:19px;line-height:1.7;margin:10px auto 22px;max-width:720px}
+.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.opt{border:2px solid #cbd8e8;background:white;border-radius:14px;padding:15px;text-align:left;font-size:17px;cursor:pointer;color:#17243b;transition:.15s}.opt:hover{border-color:var(--blue);background:#f0f7ff}.opt:disabled{cursor:default}.opt.correct{background:#e4f7eb;border-color:#21865b}.opt.wrong{background:#fff0ef;border-color:var(--red)}
+.feedback{margin-top:18px;padding:14px;border-radius:12px;line-height:1.6;display:none}.feedback.show{display:block}.feedback.good{background:#e4f7eb;color:#155b3a}.feedback.bad{background:#fff0ef;color:#8c2929}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:20px}button.primary,button.secondary{border:0;border-radius:12px;padding:13px 20px;font-size:16px;font-weight:bold;cursor:pointer}button.primary{background:var(--blue);color:white}button.primary:disabled{opacity:.4;cursor:not-allowed}button.secondary{background:#e8e2d5;color:#27344b}
+.footer{color:#dbe8ff;text-align:center;font-size:13px;margin:16px}.hidden{display:none!important}.final{text-align:center}.treasure{font-size:70px}.score{font-size:30px;font-weight:900;color:#164f86}.small{color:#5d6675;font-size:14px}
+@media(max-width:600px){body{padding:10px}.options{grid-template-columns:1fr}.panel{padding:17px}.opt{padding:13px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero"><h1>🗝️ 词语密室逃脱</h1><p>四年级华文互动闯关 · 解开词语密码，打开知识宝箱！</p></header>
+  <main class="panel" id="game">
+    <div class="top"><span class="pill" id="stage">第一关：词语小侦探</span><span class="pill" id="count">题目 1 / 17</span><span class="pill">⭐ 得分：<b id="score">0</b></span></div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="word" id="word">内心</div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+    <div class="actions"><button class="primary" id="next" disabled>提交答案</button><button class="secondary" id="restart">重新开始</button></div>
+  </main>
+  <main class="panel final hidden" id="finish">
+    <div class="treasure">🏆🔓🎁</div><h2>恭喜你，成功逃脱！</h2><p class="score" id="finalScore"></p><p id="remark"></p>
+    <h3>学习回顾</h3><div id="review" style="text-align:left;line-height:1.8"></div>
+    <div class="actions"><button class="primary" id="again">再挑战一次</button><button class="secondary" onclick="window.print()">打印成绩</button></div>
+  </main>
+  <div class="footer">教师提示：可投影进行小组竞赛；每题答对 1 分。此游戏在本机浏览器运行，无需网络。</div>
+</div>
+<script>
+const questions = [
+{stage:1,word:"内心",q:"“他表面上很开心，但内心却十分紧张。”内心是什么意思？",o:["身体的里面","心里的想法和感受","外面的世界","个人的外表"],a:1,e:"内心指心里的思想、感情和感受。"},
+{stage:1,word:"培育",q:"老师用心培育学生。这里的“培育”是什么意思？",o:["培养和教育","种植花草而已","批评学生","选择学生"],a:0,e:"培育指培养、教育，使其成长或发展。"},
+{stage:1,word:"共襄盛举",q:"学校举办大型义卖会，大家都来帮忙。哪一个词语最适合？",o:["独自完成","互相竞争","共襄盛举","置之不理"],a:2,e:"共襄盛举指大家共同努力，参与或支持一项盛大的活动。"},
+{stage:1,word:"媒体",q:"报纸、电视和网络新闻都属于什么？",o:["书本","媒体","衣衫","鼓谱"],a:1,e:"媒体是传播信息的工具或渠道。"},
+{stage:2,word:"镁光灯",q:"歌手站在舞台上，受到镁光灯的照射。这里指什么？",o:["舞台上的地毯","照亮舞台的灯光或闪光灯","观众的座位","舞台的布幕"],a:1,e:"镁光灯原指摄影用的强光闪光灯，也常用来比喻受到众人关注。"},
+{stage:2,word:"青春洋溢",q:"一群学生充满活力，脸上带着自信的笑容。可以用什么形容？",o:["荒置","衣衫褴褛","青春洋溢","气氛沉闷"],a:2,e:"青春洋溢形容充满青春的活力与朝气。"},
+{stage:2,word:"一抹笑靥",q:"“她脸上浮现一抹笑靥。”这句话描写什么？",o:["一件漂亮的衣服","脸上出现一丝美丽的笑容","一个响亮的声音","一场精彩的表演"],a:1,e:"笑靥指笑起来的面容；一抹笑靥指脸上浮现的一丝笑容。"},
+{stage:2,word:"气势磅礴",q:"鼓队整齐有力地演奏，场面十分宏大。哪一个词语最恰当？",o:["气势磅礴","轻声细语","孤单冷清","平平无奇"],a:0,e:"气势磅礴形容气势雄伟、浩大。"},
+{stage:2,word:"致辞",q:"校长在运动会开幕礼上向大家发表讲话。这叫作什么？",o:["配对","致辞","配音","记录"],a:1,e:"致辞指在典礼或集会上发表讲话。"},
+{stage:2,word:"渊源",q:"两所学校有着多年的友好关系和历史联系。可以说它们有深厚的什么？",o:["棱角","衣衫","渊源","鼓谱"],a:2,e:"渊源指事物的来源，以及彼此之间的历史联系。"},
+{stage:3,word:"娓娓道来",q:"爷爷慢慢地、有条理地讲述小时候的故事。可以怎样形容？",o:["热血沸腾","娓娓道来","撼人心神","气势磅礴"],a:1,e:"娓娓道来形容连续而生动地慢慢讲述事情。"},
+{stage:3,word:"鼓谱",q:"鼓队练习时，学生按照记录鼓点和节奏的谱子演奏。这份谱子叫什么？",o:["媒体","衣衫","鼓谱","致辞"],a:2,e:"鼓谱是记录鼓点、节奏或演奏方式的谱子。"},
+{stage:3,word:"荒置",q:"一间房子长期无人使用，也没有人打理。可以说这间房子被什么了？",o:["培育","荒置","照亮","赞美"],a:1,e:"荒置指长期搁置、不使用或无人管理。"},
+{stage:3,word:"衣衫",q:"“他穿着整齐的衣衫参加典礼。”衣衫指什么？",o:["衣服","鞋子","帽子","书包"],a:0,e:"衣衫就是衣服、衣着。"},
+{stage:4,word:"撼人心神",q:"一场感人的表演让观众深受震撼，久久不能忘怀。可以用什么形容？",o:["荒置","娓娓道来","撼人心神","青春洋溢"],a:2,e:"撼人心神指使人的内心受到强烈震动或深深感动。"},
+{stage:4,word:"热血沸腾",q:"运动员奋力比赛，观众看得激动不已，恨不得马上为他们加油。观众的心情是怎样的？",o:["热血沸腾","心不在焉","闷闷不乐","不知所措"],a:0,e:"热血沸腾形容情绪非常激动，充满热情。"},
+{stage:4,word:"棱角",q:"这块石头有尖锐的边和角。“棱角”指什么？",o:["颜色和花纹","边缘和角","声音和节奏","衣服和布料"],a:1,e:"棱角指物体的棱和角；也可以比喻一个人鲜明、突出的个性。"}
+];
+const stageNames={1:"第一关：词语小侦探",2:"第二关：词语理解挑战",3:"第三关：句子解谜",4:"第四关：情境闯关"};
+let index=0,score=0,selected=null,locked=false,results=[];
+const $=id=>document.getElementById(id);
+function render(){
+ const q=questions[index]; selected=null;locked=false;
+ $("stage").textContent=stageNames[q.stage];$("count").textContent=`题目 ${index+1} / ${questions.length}`;
+ $("score").textContent=score;$("bar").style.width=`${index/questions.length*100}%`;
+ $("word").textContent=q.word;$("question").textContent=q.q;
+ $("options").innerHTML="";$("feedback").className="feedback";$("feedback").textContent="";
+ q.o.forEach((text,i)=>{const b=document.createElement("button");b.className="opt";b.textContent=String.fromCharCode(65+i)+". "+text;b.onclick=()=>choose(i,b);$("options").appendChild(b)});
+ $("next").disabled=true;$("next").textContent="提交答案";
+}
+function choose(i,btn){if(locked)return;selected=i;[...$("options").children].forEach(b=>b.style.outline="");btn.style.outline="3px solid #2878c8";$("next").disabled=false}
+function submit(){
+ if(selected===null)return;
+ if(!locked){
+  locked=true;const q=questions[index],correct=selected===q.a;if(correct)score++;
+  results.push({word:q.word,selected:q.o[selected],answer:q.o[q.a],correct});
+  [...$("options").children].forEach((b,i)=>{b.disabled=true;if(i===q.a)b.classList.add("correct");if(i===selected&&!correct)b.classList.add("wrong")});
+  $("score").textContent=score;$("feedback").className="feedback show "+(correct?"good":"bad");
+  $("feedback").innerHTML=(correct?"✅ 答对了！获得一把钥匙！":"🔎 再接再厉！") +"<br>"+q.e+"<br><b>正确答案："+q.o[q.a]+"</b>";
+  $("next").textContent=index===questions.length-1?"打开最终宝箱":"下一题";
+ }else{index++;if(index>=questions.length)finish();else render()}
+}
+function finish(){
+ $("game").classList.add("hidden");$("finish").classList.remove("hidden");$("bar").style.width="100%";
+ $("finalScore").textContent=`${score} / ${questions.length} 分`;
+ $("remark").textContent=score===questions.length?"太棒了！你已经掌握所有词语！":score>=13?"表现优秀！复习错题后会更进步。":"任务完成！复习词语解释，再挑战一次吧！";
+ const wrong=results.filter(x=>!x.correct);
+ $("review").innerHTML=wrong.length?wrong.map(x=>`<div>❌ <b>${x.word}</b>：你的答案是“${x.selected}”；正确答案是“${x.answer}”。</div>`).join(""):"🎉 全部答对，没有错题！";
+}
+function restart(){index=0;score=0;selected=null;locked=false;results=[];$("game").classList.remove("hidden");$("finish").classList.add("hidden");render()}
+$("next").addEventListener("click",submit);$("restart").addEventListener("click",restart);$("again").addEventListener("click",restart);render();
+</script>
+</body>
+</html>
